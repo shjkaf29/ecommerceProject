@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -11,10 +12,27 @@ Route::prefix('admin-dashboard')->name('admin.')->group(function () {
     Route::prefix('product')->name('product.')->controller(ProductController::class)->group(function () {
         Route::get('create', 'create')->name('create');
         Route::post('store', 'store')->name('store');
-        Route::get('', 'index')->name('index');
+        Route::get('/', 'index')->name('index');
     });
-    
+
+    Route::prefix('category')->name('category.')->controller(CategoryController::class)->group(function(){
+        Route::get('add_category','addCategory')->name('addcategory');
+        Route::post('add_category','postAddCategory')->name('postaddcategory');
+        Route::get('view_category','viewCategory')->name('viewcategory');
+        Route::delete('/delete_category/{id}', 'deleteCategory')->name('categorydelete');
+        Route::get('/update_category/{id}','editCategory')->name('editcategory');
+        Route::put('/update_category/{id}','updateCategory')->name('updatecategory');
+    });
+
+    Route::prefix()->name()->controller(UserController::class)->group(function(){
+        Route::get('users','viewUser')->name('usercontroller');
+        Route::get('/users/{id}/edit','edit')->name('edit');
+        Route::put('/users/{id}','update')->name('update');
+        Route::delete('/users/{id}','deleteUser')->name('deleteUser');
+        Route::post('/cart/checkout','checkout')->name('checkout');
+    });
 });
+
 
 Route::get('/', [UserController::class, 'home'])->name('index');
 
@@ -49,18 +67,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/add_category', [AdminController::class, 'addCategory'])->name('admin.addcategory');
-    Route::post('/add_category', [AdminController::class, 'postAddCategory'])->name('admin.postaddcategory');
-    Route::get('/view_category', [AdminController::class, 'viewCategory'])->name('admin.viewcategory');
-    Route::delete('/delete_category/{id}', [AdminController::class, 'deleteCategory'])->name('admin.categorydelete');
-    Route::get('/update_category/{id}', [AdminController::class, 'editCategory'])->name('admin.editcategory');
-    Route::put('/update_category/{id}', [AdminController::class, 'updateCategory'])->name('admin.updatecategory');
-
-    Route::get('/users', [AdminController::class, 'viewUser'])->name('admin.viewuser');
-    Route::get('/users/{id}/edit', [AdminController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/users/{id}', [AdminController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteuser');
-    Route::post('/cart/checkout', [UserController::class, 'checkout'])->name('cart.checkout');
 
     Route::get('/add_product', [AdminController::class, 'addProduct'])->name('admin.addproduct');
     Route::post('/add_product', [AdminController::class, 'postAddProduct'])->name('admin.postaddproduct');
@@ -80,10 +86,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 
-
-
-// Temporary testing route
-
 Route::get('/test-order', function () {
     $user = \App\Models\User::first();
     $product = \App\Models\Product::first();
@@ -99,9 +101,6 @@ Route::get('/test-order', function () {
 
     return 'Test order created';
 });
-
-
-
 
 
 require __DIR__ . '/auth.php';
